@@ -163,6 +163,7 @@ def keyboard_text_node_done_handler(query):
         elif keyboard_text_node1X["edge12_bird_far_in_sea"] in reasoning:
             text = text + "\nОтлично! Фиксируем точку для информации. В море птиц не ловим, это может травмировать птиц и людей."
             print("[OK] Approved. Sending to gis.....")
+            srm.add_stop_reply(user_id, minutes=conf.LOCATION_WAIT_TIME)
             nextgis_manager.append(query, coordinates)
 
 
@@ -336,7 +337,7 @@ async def main() -> None:
 
     print("[OK] Bot enabled")
     while True:
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
         nextgis_manager.send_what_is_possible()
 
     await application.updater.stop()
