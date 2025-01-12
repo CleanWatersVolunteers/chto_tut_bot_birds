@@ -2,5 +2,9 @@
 	"-1002425874693":{
         "name": "sosbird_chto_tut_bot_test_group", 
         "topic_list":[6, 2]
+    },
+    "-1002415079849":{
+        "name": "Разлив нефти в Чёрном море", 
+        "topic_list":[5972]
     }
 }

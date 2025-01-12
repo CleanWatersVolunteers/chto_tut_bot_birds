@@ -332,7 +332,7 @@ async def main() -> None:
     await application.start()
     await application.updater.start_polling(allowed_updates=Update.ALL_TYPES)
     print("[OK] Bot enabled (pass mode)")
-    await asyncio.sleep(5)
+    await asyncio.sleep(15)
     pass_mode_enabled = False
 
     print("[OK] Bot enabled")
