@@ -158,7 +158,7 @@ def keyboard_text_node_done_handler(query):
             request_for_additional_info2 = "<b>координаты</b>,"
 
         if keyboard_text_node2X["edge22_we_bring_bird"] in reasoning:
-            text = text + "\nОтлично! Адреса: Витязево, Жемчужная, 9, Витязево, Черноморская, 2."
+            text = text + "\nОтлично! Адреса приёма птиц смотрите в @sosbird_bot"
 
         elif keyboard_text_node1X["edge12_bird_far_in_sea"] in reasoning:
             text = text + "\nОтлично! Фиксируем точку для информации. В море птиц не ловим, это может травмировать птиц и людей."
@@ -217,6 +217,7 @@ async def cb_reaction_button(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await query.answer()
     global pass_mode_enabled
     if pass_mode_enabled:
+        print("^", end = "")
         return
     chat_id = str(query["message"]["chat"]["id"])
     if chat_id not in target_group_id:
@@ -246,6 +247,7 @@ async def cb_message_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     #print(json.dumps(update.to_dict(), indent = 4))
     global pass_mode_enabled
     if pass_mode_enabled:
+        print("^", end = "")
         return   
     if update["message"]["is_topic_message"] != True:
         return None
@@ -275,6 +277,7 @@ async def cb_message_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def cb_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     global pass_mode_enabled
     if pass_mode_enabled:
+        print("^", end = "")
         return None
     if update["message"] is None:
         return None
