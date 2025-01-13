@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import json
+import sys
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, constants, ReactionTypeEmoji
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, ContextTypes, filters
 
@@ -218,6 +219,7 @@ async def cb_reaction_button(update: Update, context: ContextTypes.DEFAULT_TYPE)
     global pass_mode_enabled
     if pass_mode_enabled:
         print("^", end = "")
+        sys.stdout.flush()
         return
     chat_id = str(query["message"]["chat"]["id"])
     if chat_id not in target_group_id:
@@ -248,6 +250,7 @@ async def cb_message_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     global pass_mode_enabled
     if pass_mode_enabled:
         print("^", end = "")
+        sys.stdout.flush()
         return   
     if update["message"]["is_topic_message"] != True:
         return None
@@ -278,6 +281,7 @@ async def cb_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     global pass_mode_enabled
     if pass_mode_enabled:
         print("^", end = "")
+        sys.stdout.flush()
         return None
     if update["message"] is None:
         return None
