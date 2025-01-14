@@ -23,7 +23,7 @@ pass_mode_enabled = True
 with open("__allowed_groups_test.json", "r") as f:
     target_group_id = json.load(f)
 
-with open("../__token_testing_chto_tut_bot_birds.txt", "r") as f:
+with open("../__token_sosbird_chto_tut_bot.txt", "r") as f:
     TELEGRAM_BOT_TOKEN = f.read()
 
 
@@ -227,7 +227,13 @@ async def cb_reaction_button(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
 
     if stop_reply_by_clicks.click_and_verify(query.message.message_id) == False:
-        await query.edit_message_text(text=query["message"]["text"] + "\nОтмена (лимит нажатий)")
+        print(f'[..] Removing, reaction limit... Message: {query["message"]["text"]}')
+        await query.delete_message()
+        return
+    #print(json.dumps(query.to_dict(), indent = 4))
+    if query.message.reply_to_message is None:
+        print("[..] Removing")
+        await query.delete_message()
         return
 
     coordinate_sender = query["message"]["reply_to_message"]["from"]["id"]
@@ -252,7 +258,8 @@ async def cb_message_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         print("^", end = "")
         sys.stdout.flush()
         return   
-    if update["message"]["is_topic_message"] != True:
+    
+    if update["message"] is None or update["message"]["is_topic_message"] != True:
         return None
     chat_id = str(update["message"]["chat"]["id"])
     group_id = update["message"]["message_thread_id"]
@@ -344,7 +351,7 @@ async def main() -> None:
 
     print("[OK] Bot enabled")
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.1)
         nextgis_manager.send_what_is_possible()
 
     await application.updater.stop()

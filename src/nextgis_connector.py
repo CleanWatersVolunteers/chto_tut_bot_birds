@@ -31,7 +31,7 @@ def add_point(lat, lon, comment, dtime, layer_name, tg_link, count = None, posit
     feature['fields'] = dict()
     feature['fields']['lat'] = lat
     feature['fields']['lon'] = lon
-    feature['fields']['comment'] = "TEST" + comment.replace("\n", ". ") + "\n" + tg_link + zone_info
+    feature['fields']['comment'] = comment.replace("\n", ". ") + "\n" + tg_link + zone_info
     feature["source"] = "parser-bot"
     #print(tg_link)
     feature['geom'] = 'POINT (%s %s)' % (lon, lat)

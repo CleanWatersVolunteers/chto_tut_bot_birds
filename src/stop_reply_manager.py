@@ -32,6 +32,6 @@ class stop_reply_by_clicks:
         else:
             cls.stop_reply_dict[chat_instance] = 1
 
-        if  cls.stop_reply_dict[chat_instance] > 100:
+        if  cls.stop_reply_dict[chat_instance] > 15:
             return False
         return True
