@@ -96,7 +96,7 @@ def keyboard_text_node_start_handler(query):
     if query.data == "edge2_bird_catched":
         keyboard = tgm.make_inline_keyboard(keyboard_text_node2X)
     if query.data == "edge3_cancel":
-        text = "Действие отменено."
+        text = None #"Действие отменено."
         keyboard = None
     return text, keyboard
 
@@ -232,21 +232,24 @@ async def cb_reaction_button(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     #print(json.dumps(query.to_dict(), indent = 4))
     if query.message.reply_to_message is None:
-        print("[..] Removing")
+        print("[..] Removing. Original message removed.")
         await query.delete_message()
         return
 
     coordinate_sender = query["message"]["reply_to_message"]["from"]["id"]
     replier = query["from"]["id"]
-    print(f"[..] Sender {coordinate_sender}. Replier {replier}")
+    print(f"[..] {datetime.now()} Sender {coordinate_sender}. Replier {replier}. {query.data}")
     if coordinate_sender != replier:
         return None
     if query.data in edges.keys():
         text, keyboard = edges[query.data](query)
-        if keyboard:
+        if keyboard is not None and text is not None:
             await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-        else:
+        elif keyboard is None and text is not None:
             await query.edit_message_text(text=text, parse_mode=constants.ParseMode.HTML)
+        else:
+            print(f'[..] Removing (canceled) {query["message"]["text"]}')
+            await query.delete_message()
     else:
         print(f"[!!] Got unexpected argument: {query.data}")
     return
