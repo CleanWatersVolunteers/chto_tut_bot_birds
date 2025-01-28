@@ -35,7 +35,6 @@ def get_coord_from_text(text):
     return all_lat, all_lon
 
 
-
 # Нужен отлов птицы -> Если стриггерились на геопозицию, то спрашиваем фото и количество
 #                                         Если стриггерились на фото, спрашиваем геопозицию и количество
 #
@@ -49,7 +48,7 @@ def get_coord_from_text(text):
 keyboard_text_node_start = {
         "edge1_bird":"Нужен отлов птицы",
         "edge2_bird_catched":"Птица поймана",
-        "edge3_cancel":"Отмена"
+        "edge3_cancel":"Закрыть"
 }
 keyboard_text_node1X = {
         "edge11_bird_on_beach":"Около/на берегу", 
@@ -84,7 +83,7 @@ keyboard_text_node21XX = {
 }
 
 keyboard_text_node_done = {
-        "edge_done":"Готово", 
+        "edge_done":"Всё верно", 
         "edge_to_start":"Назад"
 }
 
@@ -150,31 +149,33 @@ def keyboard_text_node_done_handler(query):
         request_for_additional_info2 = ""
         coordinates = None
         if "координаты" in bot_reply:
-            request_for_additional_info = "\nПришлите фотографии в чат."
+            request_for_additional_info = "📷 Добавьте фотографии в чат, если есть."
             request_for_additional_info2 = ""
+            request_for_additional_info3 = "Теперь у координатора есть вся необходимая информация 💚"
             all_lat, all_lon = get_coord_from_text(bot_reply)
             coordinates = [all_lat[0], all_lon[0]]
         else:
-            request_for_additional_info = "\n<b>Обязательно пришлите координаты или геопозицию в чат!</b>"
+            request_for_additional_info = "<b>Обязательно пришлите координаты или геопозицию в чат!</b>"
             request_for_additional_info2 = "<b>координаты</b>,"
+            request_for_additional_info3 = "Тогда у координатора @Mira113_shtab будет вся необходимая информация 💚"
 
         if keyboard_text_node2X["edge22_we_bring_bird"] in reasoning:
             text = text + "\nОтлично! Адреса приёма птиц смотрите в @sosbird_bot"
 
         elif keyboard_text_node1X["edge12_bird_far_in_sea"] in reasoning:
-            text = text + "\nОтлично! Фиксируем точку для информации. В море птиц не ловим, это может травмировать птиц и людей."
+            text = text + f"\nОтлично! {request_for_additional_info} Фиксируем точку для информации @Mira113_shtab. В море птиц не ловим, это может травмировать птиц и людей."
             print("[OK] Approved. Sending to gis.....")
             srm.add_stop_reply(user_id, minutes=conf.LOCATION_WAIT_TIME)
             nextgis_manager.append(query, coordinates)
 
-
         elif keyboard_text_node1X["edge11_bird_on_beach"] in reasoning:
-            text = text + "\nОтлично! Фиксируем точку. " + request_for_additional_info
+            text = text.split("!")[0] + ". Вы уточнили:" + text.split("-"*25)[1]
+            text = text + f"\n{request_for_additional_info}\n{request_for_additional_info3}"
             srm.add_stop_reply(user_id, minutes=conf.LOCATION_WAIT_TIME)
             nextgis_manager.append(query, coordinates)
 
         elif keyboard_text_node2X["edge21_pick_bird"] in reasoning:
-            text = text + f"\nОтлично!\nПришлите в чат {request_for_additional_info2} ваш <b>номер телефона</b> (или свяжитесь с координатором) и <b>ждите машину</b>"
+            text = text + f"\nОтлично!\nПришлите в чат {request_for_additional_info2} ваш <b>номер телефона</b> (или свяжитесь с координатором @Mira113_shtab) и <b>ждите машину</b>"
             srm.add_stop_reply(user_id, minutes=conf.LOCATION_WAIT_TIME)
             nextgis_manager.append(query, coordinates)
 
@@ -244,7 +245,7 @@ async def cb_reaction_button(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if query.data in edges.keys():
         text, keyboard = edges[query.data](query)
         if keyboard is not None and text is not None:
-            await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+            await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=constants.ParseMode.HTML)
         elif keyboard is None and text is not None:
             await query.edit_message_text(text=text, parse_mode=constants.ParseMode.HTML)
         else:
@@ -279,11 +280,13 @@ async def cb_message_photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     else:
         username = ""
     text = f"""\
-{username}Спасибо за фотографию. 
-Пожалуйста, добавьте детальную информацию о птице здесь:
+{username}Спасибо за фотографию! 
+Пожалуйста, уточните информацию о точке с помощью кнопок ниже ⬇️.
+Это нужно, чтобы координаторы получили все необходимые данные для помощи.
+⚠️ <b>Важно: бот не понимает текстовые сообщения. Нажимайте кнопки.</b>
 """
     srm.add_stop_reply(update["message"]["from"]["id"], minutes=conf.LOCATION_WAIT_TIME)
-    await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=constants.ParseMode.HTML)
     return None
 
 
@@ -302,9 +305,7 @@ async def cb_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     if chat_id not in target_group_id or \
         group_id not in target_group_id[chat_id]["topic_list"]:
         return None
-    if srm.check_active(update["message"]["from"]["id"]) == True:
-        return None
-    print("[..] message:...")
+    print(f'[..] message:... {update["message"]["from"]["id"]}')
 
     # Prepare to search the cordinates
     text = update.to_dict()
@@ -321,6 +322,8 @@ async def cb_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         if nextgis_manager.append_and_check_awaiting(update.message["from"]["id"], [all_lat[0], all_lon[0]]):
             await update.message.set_reaction("👍")
             return None
+        if srm.check_active(update["message"]["from"]["id"]) == True:
+            return None
         username = update["message"]["from"]["username"]
         if username is not None:
             username = f"@{username}. "
@@ -328,11 +331,13 @@ async def cb_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             username = ""
         
         text = f"""\
-{username} Спасибо за координаты ({coordinates}).
-Пожалуйста, добавьте детальную информацию о птице здесь:
+{username} Спасибо за координаты ({coordinates})!
+Пожалуйста, уточните информацию о точке с помощью кнопок ниже ⬇️
+Это нужно, чтобы координаторы получили все необходимые данные для помощи.
+⚠️ <b>Важно: бот не понимает текстовые сообщения. Нажимайте кнопки.</b>
 """
         keyboard = tgm.make_inline_keyboard(keyboard_text_node_start)
-        await update.message.reply_text(f'{text}', reply_markup=InlineKeyboardMarkup(keyboard))
+        await update.message.reply_text(f'{text}', reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=constants.ParseMode.HTML)
     return None
 
 async def main() -> None:
